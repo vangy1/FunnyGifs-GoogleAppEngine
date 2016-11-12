@@ -1,0 +1,26 @@
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+handlers:
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+
+- url: /getposts
+  script: getposts.app
+- url: /getposts_chrome
+  script: getposts_chrome.app
+- url: /getposts_alternate
+  script: getposts_alternate.app
+- url: /fetchposts
+  script: fetchposts.app
+
+
+libraries:
+- name: webapp2
+  version: "2.5.2"
+- name: MySQLdb
+  version: "1.2.5"
+- name: ssl
+  version: "2.7"
