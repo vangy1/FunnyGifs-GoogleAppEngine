@@ -47,6 +47,7 @@ class MainHandler(webapp2.RequestHandler):
             jsonObject.title = row[1]
             jsonObject.id = row[2]
             jsonObject.placeholder = str(row[0]).replace(".gifv","h.jpg").replace(".gif","h.jpg")
+            jsonObject.reddit_id = row[3]
             objectList.append(jsonObject)
 
         # --------------- Print as valid JSON ---------------
