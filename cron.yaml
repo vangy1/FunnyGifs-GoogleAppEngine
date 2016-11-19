@@ -1,4 +1,4 @@
 cron:
 - description: fetching posts
   url: /fetchposts
-  schedule: every 1 hours
+  schedule: every 10 minutes

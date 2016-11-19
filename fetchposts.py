@@ -9,18 +9,21 @@ import webapp2
 
 db = None
 cursor = None
-howmany = 5
-z = 1
 posts = []
+z = 0
+howmany = 5
 
 
 def doMultipleRedditRequests(after):
+    global z
     if z <= howmany:
         if after == "":
             getListing("funny", 100, "")
         else:
             getListing("funny", 100, after)
+        z += 1
     else:
+        z = 0
         processData()
 
 def processData():
@@ -28,12 +31,12 @@ def processData():
     global posts
 
     for post in range(0,len(posts)):
-        url = posts[post]['data']['url']
-        title = posts[post]['data']['title']
+        url = posts[post]['data']['url'].encode('ascii', 'ignore').decode('ascii')
+        title = posts[post]['data']['title'].encode('ascii', 'ignore').decode('ascii')
         nsfw = posts[post]['data']['over_18']
         stickie = posts[post]['data']['stickied']
-        permalink = posts[post]['data']['permalink']
-        name = posts[post]['data']['name']
+        permalink = posts[post]['data']['permalink'].encode('ascii', 'ignore').decode('ascii')
+        name = posts[post]['data']['name'].encode('ascii', 'ignore').decode('ascii')
         if nsfw != "true" and stickie != "1" and str(url).find("i.imgur") != -1 and str(url).find(".gif") != -1:
             o = type('lamdbaobject', (object,), {})()
             o.url = url
@@ -41,14 +44,14 @@ def processData():
             o.permalink = permalink
             o.reddit_id = name
             filtered_posts.append(o)
-    writeToDb(filtered_posts)
+    posts = []
+    addNewPostsToArchive(filtered_posts)
 
 
 def addToOtherResponses(response):
     newPosts = response['data']['children']
-    for post in range(0,len(newPosts)):
+    for post in range(0, len(newPosts)):
         posts.append(newPosts[post])
-
 
 def getListing(subreddit, limit, after):
     url_listing = "https://www.reddit.com/r/%s/.json?limit=%d&after=%s" % (subreddit,limit,after)
@@ -58,7 +61,7 @@ def getListing(subreddit, limit, after):
 def runCurl(url):
     global z
 
-    r = requests.get(url, headers = {'User-agent': 'funny gifs'})
+    r = requests.get(url, headers={'User-agent': 'funny gifs'})
     response = r.json()
 
     z += 1
@@ -67,29 +70,12 @@ def runCurl(url):
     addToOtherResponses(response)
     doMultipleRedditRequests(after)
 
-
-def writeToDb(filteredPosts):
-    if len(filteredPosts) > 0:
-        sql = "TRUNCATE table posts"
-        cursor.execute(sql)
-
+def addNewPostsToArchive(filteredPosts):
     sql = "SET NAMES 'utf8' COLLATE 'utf8_unicode_ci'"
     cursor.execute(sql)
-
-    for post in range(0,len(filteredPosts)):
-        title = MySQLdb.escape_string(filteredPosts[post].title)
-        url = filteredPosts[post].url
-        permalink = filteredPosts[post].permalink
-        reddit_id = filteredPosts[post].reddit_id
-        sql = "INSERT INTO posts (url,title,permalink,reddit_id) VALUES ('%s','%s','%s','%s')" % (url,title,permalink,reddit_id)
-        cursor.execute(sql)
-
-    addNewPostsToArchive(filteredPosts)
-
-
-def addNewPostsToArchive(filteredPosts):
     sql = "SELECT reddit_id from archive group by 1 ORDER BY timestamp DESC limit 300"
     cursor.execute(sql)
+
     result = cursor.fetchall()
 
     existingPosts = []
@@ -106,17 +92,14 @@ def addNewPostsToArchive(filteredPosts):
         if dupFound == 0:
             dedupedNewPosts.append(filteredPosts[post])
 
-    alreadyInsertedUrls = []
     for post in range(0,len(dedupedNewPosts)):
+        title = MySQLdb.escape_string(dedupedNewPosts[post].title.decode("utf-8"))
         url = dedupedNewPosts[post].url
-        if url not in alreadyInsertedUrls: # Check if url of deduptedPosts isn't in array of Urls that were already inserted into the databse
-            title = MySQLdb.escape_string(dedupedNewPosts[post].title)
-            permalink = dedupedNewPosts[post].permalink
-            reddit_id = dedupedNewPosts[post].reddit_id
-            sql = "INSERT INTO archive (url,title,permalink,reddit_id) VALUES ('%s','%s','%s','%s')" % (url,title,permalink,reddit_id)
-            cursor.execute(sql)
-            db.commit()
-            alreadyInsertedUrls.append(url)  # Add the url into already inserted urls
+        permalink = dedupedNewPosts[post].permalink
+        reddit_id = dedupedNewPosts[post].reddit_id
+        sql = "INSERT INTO archive (url,title,permalink,reddit_id) VALUES ('%s','%s','%s','%s')" % (url,title,permalink,reddit_id)
+        cursor.execute(sql)
+        db.commit()
 
 # Google App engine
 class MainHandler(webapp2.RequestHandler):
@@ -137,7 +120,6 @@ class MainHandler(webapp2.RequestHandler):
         cursor = db.cursor()
         # ---------------------------------------------------
         doMultipleRedditRequests("") # Start fetching script
-
         self.response.write("Finished !")
 
         db.close()
