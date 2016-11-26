@@ -35,8 +35,10 @@ class MainHandler(webapp2.RequestHandler):
         sql = "SET NAMES 'utf8' COLLATE 'utf8_unicode_ci'"
         cursor.execute(sql)
 
-        sql = "SELECT url,title,id,reddit_id FROM archive WHERE id NOT BETWEEN '%d' AND '%d' AND url LIKE '%%.gifv' GROUP by reddit_id ORDER BY id DESC limit 2" % (
-            int(minimum), int(maximum))
+
+
+        sql = "SELECT * FROM (SELECT url,title,id,reddit_id FROM archive WHERE id > '%d' AND url LIKE '%%.gifv' ORDER BY id ASC LIMIT 2) a UNION ALL SELECT * FROM (SELECT url,title,id,reddit_id FROM archive WHERE id < '%d' AND url LIKE '%%.gifv' ORDER BY id DESC LIMIT 2) b LIMIT 2" % (
+            int(maximum), int(minimum))
         cursor.execute(sql)
         result = cursor.fetchall()
 
