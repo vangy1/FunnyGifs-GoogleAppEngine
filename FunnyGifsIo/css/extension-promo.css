@@ -1,0 +1,29 @@
+#extension-promo{
+  background: whitesmoke;
+  border-top: 1px dotted #ccc;
+  text-align: center;
+  padding: 10px;
+  color: #444;
+  display:none;
+}
+
+#install-button{
+  margin: 12px;
+  line-height: 25px;
+  height: 65px;
+  padding-top: 7px;
+  background-color: #03A9F4;
+}
+
+#star-rating{
+ font-size:23px;
+}
+#star-rating span{
+    margin-left:-4px;
+}
+#star-rating .full{
+    color:gold;
+}
+#star-rating .empty{
+    color:#eaeaea;
+}

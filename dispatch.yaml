@@ -1,0 +1,10 @@
+dispatch:
+- url: "www.funnygifs.io/*"
+  service: funnygifsio
+- url: "funnygifs.io/*"
+  service: funnygifsio
+
+- url: "www.funnygifs.media/*"
+  service: funnygifsmedia
+- url: "funnygifs.media/*"
+  service: funnygifsmedia
