@@ -1,4 +1,5 @@
 runtime: python27
+service: funnygifsmedia
 api_version: 1
 threadsafe: yes
 
@@ -9,6 +10,8 @@ handlers:
 
 - url: /getposts
   script: getposts.app
+- url: /getposts_whatsapp
+  script: getposts_whatsapp.app
 - url: /getposts_chrome
   script: getposts_chrome.app
 - url: /getposts_alternate

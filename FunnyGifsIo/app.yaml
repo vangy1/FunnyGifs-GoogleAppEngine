@@ -1,0 +1,51 @@
+runtime: python27
+service: funnygifsio
+api_version: 1
+threadsafe: yes
+
+handlers:
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+
+- url: /
+  script: index.app
+  secure: never
+
+- url: /index
+  script: index.app
+  secure: never
+
+- url: /gif
+  script: gif.app
+  secure: never
+- url: /gif.php
+  script: gif.app
+  secure: never
+
+- url: /nonstopgifs.php
+  script: nonstopgifs.app
+  secure: never
+
+- url: /sitemap
+  script: sitemap.app
+  secure: never
+
+- url: /getposts_web_client
+  script: getposts_web_client.app
+  secure: never
+
+- url: /css
+  static_dir: css
+
+- url: /images
+  static_dir: images
+
+- url: /js
+  static_dir: js
+
+libraries:
+- name: webapp2
+  version: "2.5.2"
+- name: MySQLdb
+  version: "1.2.5"
