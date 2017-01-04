@@ -49,7 +49,8 @@ video{
 }
 
 #ad-container{
-  padding:30px;
+  padding:25px;
+  height: 140px;
 }
 #sample-ad{
   height:60px;
