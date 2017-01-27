@@ -194,11 +194,7 @@ class MainHandler(webapp2.RequestHandler):
   <script>
     
 $(".install").click(function(){
-    if (isMobile == false){
-        chrome.webstore.install("https://chrome.google.com/webstore/detail/pgomiemfankmkbmlkelacahjoocegcgm",successCallback)
-    } else {
-        window.location = 'https://chrome.google.com/webstore/detail/funny-new-tab/pgomiemfankmkbmlkelacahjoocegcgm';
-    }
+    chrome.webstore.install("https://chrome.google.com/webstore/detail/pgomiemfankmkbmlkelacahjoocegcgm",successCallback)
 });
 
 function successCallback(){
