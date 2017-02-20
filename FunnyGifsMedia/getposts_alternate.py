@@ -3,6 +3,8 @@ import MySQLdb
 import os
 import json
 import webapp2
+
+
 # -----------------
 
 # Object for saving JSON values
@@ -11,12 +13,14 @@ class Object:
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
 
+
 # Google App engine
 class MainHandler(webapp2.RequestHandler):
     def get(self):
 
-        minimum = self.request.get('minimum',0) # GET before value from url
-        maximum = self.request.get('maximum',0) # GET after value from url
+        subreddit = self.request.get('vertical', "funny")
+        minimum = self.request.get('minimum', 0)  # GET before value from url
+        maximum = self.request.get('maximum', 0)  # GET after value from url
 
         # --------------- Database Connection ---------------
         if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
@@ -35,26 +39,24 @@ class MainHandler(webapp2.RequestHandler):
         sql = "SET NAMES 'utf8' COLLATE 'utf8_unicode_ci'"
         cursor.execute(sql)
 
-
-
-        sql = "SELECT * FROM (SELECT url,title,id,reddit_id FROM archive WHERE id > '%d' AND url LIKE '%%.gifv' ORDER BY id ASC LIMIT 2) a UNION ALL SELECT * FROM (SELECT url,title,id,reddit_id FROM archive WHERE id < '%d' AND url LIKE '%%.gifv' ORDER BY id DESC LIMIT 2) b LIMIT 2" % (
-            int(maximum), int(minimum))
+        sql = "SELECT * FROM (SELECT url,title,id,reddit_id FROM archive WHERE subreddit='%s' AND id > '%d' AND url LIKE '%%.gifv' ORDER BY id ASC LIMIT 2) a UNION ALL SELECT * FROM (SELECT url,title,id,reddit_id FROM archive WHERE subreddit='%s' AND id < '%d' AND url LIKE '%%.gifv' ORDER BY id DESC LIMIT 2) b LIMIT 2" % (
+            subreddit, int(maximum), subreddit, int(minimum))
         cursor.execute(sql)
         result = cursor.fetchall()
 
         objectList = []
         for row in result:
             jsonObject = Object()
-            jsonObject.url = str(row[0]).replace("gifv","mp4").replace("gif","mp4")
+            jsonObject.url = str(row[0]).replace("gifv", "mp4").replace("gif", "mp4")
             jsonObject.title = row[1]
             jsonObject.id = row[2]
-            jsonObject.placeholder = str(row[0]).replace(".gifv","h.jpg").replace(".gif","h.jpg")
+            jsonObject.placeholder = str(row[0]).replace(".gifv", "h.jpg").replace(".gif", "h.jpg")
             jsonObject.reddit_id = row[3]
             objectList.append(jsonObject)
 
         # --------------- Print as valid JSON ---------------
         self.response.headers['Content-Type'] = 'application/json'
-        self.response.headers['access-control-allow-origin'] = '*'        
+        self.response.headers['access-control-allow-origin'] = '*'
         self.response.write("[")
         i = 0
         length = len(objectList)
@@ -67,6 +69,7 @@ class MainHandler(webapp2.RequestHandler):
 
         cursor.close()
         db.close()
+
 
 app = webapp2.WSGIApplication([
     ('/getposts_alternate', MainHandler)

@@ -1,4 +1,5 @@
 cron:
 - description: fetching posts
+  target: funnygifsmedia
   url: /fetchposts
-  schedule: every 10 minutes
+  schedule: every 25 minutes

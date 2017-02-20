@@ -15,6 +15,7 @@ class Object:
 class MainHandler(webapp2.RequestHandler):
     def get(self):
 
+        subreddit = self.request.get('vertical', "funny")
         before = self.request.get('before',0) # GET before value from url
         after = self.request.get('after',0) # GET after value from url
 
@@ -35,8 +36,8 @@ class MainHandler(webapp2.RequestHandler):
         sql = "SET NAMES 'utf8' COLLATE 'utf8_unicode_ci'"
         cursor.execute(sql)
 
-        sql = "SELECT url,title,id,reddit_id FROM archive WHERE id NOT BETWEEN '%d' AND '%d' ORDER BY id DESC limit 40" % (
-            int(after), int(before))
+        sql = "SELECT url,title,id,reddit_id FROM archive WHERE subreddit='%s' AND id NOT BETWEEN '%d' AND '%d' ORDER BY id DESC limit 40" % (
+            subreddit, int(after), int(before))
         cursor.execute(sql)
         result = cursor.fetchall()
 

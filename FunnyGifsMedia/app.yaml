@@ -18,6 +18,7 @@ handlers:
   script: getposts_alternate.app
 - url: /fetchposts
   script: fetchposts.app
+  login: admin
 
 
 libraries:

@@ -13,6 +13,7 @@ class Object:
 class MainHandler(webapp2.RequestHandler):
     def get(self):
 
+        subreddit = self.request.get('vertical', "funny")
         before = self.request.get('before', 100000000)  # GET before value from url
         size = self.request.get('size', 5)  # GET size value from url
 
@@ -32,7 +33,7 @@ class MainHandler(webapp2.RequestHandler):
         sql = "SET NAMES 'utf8' COLLATE 'utf8_unicode_ci'"
         cursor.execute(sql)
 
-        sql = "SELECT id,url,title,UNIX_TIMESTAMP(timestamp),reddit_id FROM archive WHERE id < '%d' AND url like '%%.gifv' group by reddit_id ORDER BY id DESC limit %d" % (int(before),int(size))
+        sql = "SELECT id,url,title,UNIX_TIMESTAMP(timestamp),reddit_id FROM archive WHERE subreddit='%s' AND id < '%d' AND url like '%%.gifv' group by reddit_id ORDER BY id DESC limit %d" % (subreddit,int(before),int(size))
         cursor.execute(sql)
         result = cursor.fetchall()
         if len(result) == 0:

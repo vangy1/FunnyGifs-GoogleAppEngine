@@ -14,6 +14,8 @@ class Object:
 # Google App engine
 class MainHandler(webapp2.RequestHandler):
     def get(self):
+
+        subreddit = self.request.get('vertical', "funny")
         # --------------- Database Connection ---------------
         if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
             db = MySQLdb.connect(
@@ -47,7 +49,8 @@ class MainHandler(webapp2.RequestHandler):
             posts.append(jsonObject)
 
 
-        sql = "SELECT * FROM archive WHERE timestamp between DATE_SUB(NOW(), INTERVAL 41 DAY) and DATE_SUB(NOW(), INTERVAL 21 DAY) order by RAND() limit 1"
+        sql = "SELECT * FROM archive WHERE subreddit='%s' AND timestamp between DATE_SUB(NOW(), INTERVAL 41 DAY) and DATE_SUB(NOW(), INTERVAL 21 DAY) order by RAND() limit 1" % (
+            subreddit)
         cursor.execute(sql)
         result = cursor.fetchall()
 
